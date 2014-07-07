@@ -33,15 +33,15 @@ class Forest {
         var randomNumber = new Random().nextInt(100);
 
         if (randomNumber < maxLumberjacks && currentLumberjacks < maxLumberjacks) {
-          plot.addLumberjack(new Lumberjack());
+          plot.lumberjack = new Lumberjack();
         }
 
         if (randomNumber < maxTrees && currentTrees < maxTrees) {
-          plot.addTree(new Tree());
+          plot.tree = new Tree();
         }
 
         if (randomNumber < maxBears && currentBears < maxBears) {
-          plot.addBear(new Bear());
+          plot.bear = new Bear();
         }
 
         plots.add(plot);
@@ -59,7 +59,14 @@ class Forest {
     }
     forestAge = new ForestAge(age);
 
-    //plots.where((x) => x.point.x == 9 && x.point.y == 9).forEach((x) => print("Tree: ${x.tree}"));
+    plots.forEach((x) => forestCycle(x));
+    plots.where((x) => x.point.x == 9 && x.point.y == 9).forEach((x) => print("Age: ${forestAge.totalMonths}, Tree: ${x.tree}"));
+  }
+
+  forestCycle(ForestPlot forestPlot) {
+    if(forestPlot.tree != null) {
+      forestPlot.tree = forestPlot.tree.upgrade();
+    }
   }
 }
 
@@ -70,44 +77,41 @@ class ForestPlot {
   Lumberjack lumberjack;
 
   ForestPlot(this.point);
-
-  void addBear(Bear bear) {
-    this.bear = bear;
-  }
-
-  void addTree(ForestTree tree) {
-    this.tree = tree;
-  }
-
-  void addLumberjack(Lumberjack lumberjack) {
-    this.lumberjack = lumberjack;
-  }
 }
 
 class ForestAge {
-  num age;
+  num _age;
 
-  ForestAge(this.age);
+  ForestAge(this._age);
 
-  get totalYears => (age / 12).round();
+  get totalYears => (_age / 12).round();
 
-  get totalMonths => age;
+  get totalMonths => _age;
 }
 
 abstract class ForestTree {
-
-}
-
-class Tree extends ForestTree {
-
+  ForestTree upgrade();
 }
 
 class Sapling extends ForestTree {
 
+  ForestTree upgrade() {
+    return new Tree();
+  }
+}
+
+class Tree extends ForestTree {
+
+  ForestTree upgrade() {
+    return new ElderTree();
+  }
 }
 
 class ElderTree extends ForestTree {
 
+  ForestTree upgrade() {
+    return this;
+  }
 }
 
 class Lumberjack {
